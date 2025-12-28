@@ -2,11 +2,11 @@ name: 매일 주식 블로그 쓰기
 
 on:
   schedule:
-    - cron: '0 23 * * *' # 한국 시간 아침 8시마다 실행
-  workflow_dispatch: # 수동 실행 버튼 추가
+    - cron: '0 23 * * *' # 매일 아침 8시 실행
+  workflow_dispatch: # 수동 실행 버튼
 
 permissions:
-  contents: write # ⭐️ 로봇이 글을 쓰고 저장할 수 있는 권한 부여!
+  contents: write # ⭐️ [중요] 로봇에게 '글쓰기' 권한을 주는 마법의 코드!
 
 jobs:
   build:
@@ -22,9 +22,15 @@ jobs:
         python-version: '3.9'
 
     - name: 필요한 도구 설치
-      run: pip install openai finance-datareader matplotlib
+      run: pip install finance-datareader
 
-    - name: 로봇 실행! (main.py 실행)
-      env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} # 나중에 설정할 비밀키
+    - name: 로봇 실행! (글 쓰기)
       run: python main.py
+
+    - name: 결과물 저장하고 퇴근하기
+      run: |
+        git config --global user.name 'StockBot'
+        git config --global user.email 'bot@noreply.github.com'
+        git add index.html
+        git commit -m "오늘의 주식 데이터 업데이트" || echo "변경사항이 없어서 넘어갑니다."
+        git push
