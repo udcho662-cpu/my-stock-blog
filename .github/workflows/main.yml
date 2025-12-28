@@ -2,22 +2,22 @@ name: 매일 주식 블로그 쓰기
 
 on:
   schedule:
-    - cron: '0 23 * * *'
+    - cron: '0 23 * * *' # 매일 아침 8시 실행
   workflow_dispatch: # 수동 실행 버튼
 
 permissions:
-  contents: write # ⭐️ 쓰기 권한 필수!
+  contents: write # ⭐️ 쓰기 권한 부여
 
 jobs:
   build:
     runs-on: ubuntu-latest
     
     steps:
-    - name: 내 코드 가져오기
+    - name: 내 코드 가져오기 (최신 버전 강제)
       uses: actions/checkout@v3
-       with:
-        ref: 'main'  # 👈 [중요] "무조건 최신 main 버전을 가져와!" 라는 뜻
-        fetch-depth: 0 # 모든 기록을 다 새로고침해서 가져오라는 뜻
+      with:
+        ref: 'main'
+        fetch-depth: 0
 
     - name: 파이썬 설정하기
       uses: actions/setup-python@v4
@@ -26,18 +26,18 @@ jobs:
 
     - name: 필요한 라이브러리 설치
       run: |
-        pip install finance-datareader beautifulsoup4 lxml
+        pip install finance-datareader beautifulsoup4 lxml requests
 
-    - name: 로봇 실행! (에러나면 멈춰!)
+    - name: 로봇 실행! (main.py)
       run: |
         python main.py
-        cat index.html # ⭐️ 실행 직후, 파일 내용이 진짜로 바뀌었는지 화면에 출력해보기
+        echo "=== 실행 후 index.html 파일 내용 확인 ==="
+        cat index.html
 
     - name: 결과물 저장하고 퇴근하기
       run: |
         git config --global user.name 'StockBot'
         git config --global user.email 'bot@noreply.github.com'
         git add index.html
-        git commit -m "오늘의 주식 데이터 업데이트"
+        git commit -m "오늘의 주식 데이터 업데이트" || echo "변경사항이 없어서 넘어갑니다."
         git push
-
