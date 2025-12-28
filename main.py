@@ -1,4 +1,3 @@
-print("안녕!나는 주식 분석 로봇이야.")
 import FinanceDataReader as fdr
 import datetime
 
@@ -9,18 +8,25 @@ now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 try:
     # 삼성전자(005930)의 최근 데이터를 가져옴
-    df = fdr.DataReader('005930', '2024') 
+    df = fdr.DataReader('005930') # 2024년 데이터부터
     latest = df.iloc[-1] # 가장 최신 데이터
     
     price = int(latest['Close']) # 종가
-    change = latest['Change'] * 100 # 등락률
+    
+    # 등락률 계산 (데이터에 'Change' 컬럼이 없으면 전일 대비로 계산)
+    if 'Change' in latest:
+        change = latest['Change'] * 100
+    else:
+        # Change 컬럼이 없을 경우 직접 계산 (전일 종가 대비)
+        yesterday = df.iloc[-2]
+        change = ((price - int(yesterday['Close'])) / int(yesterday['Close'])) * 100
     
     # 등락률에 따른 이모지 설정
     if change > 0:
         emoji = "🔺"
         color = "red"
     elif change < 0:
-        emoji = "QAQ"
+        emoji = "QAQ" # 파란색 눈물
         color = "blue"
     else:
         emoji = "➖"
@@ -30,7 +36,6 @@ try:
     <h2>삼성전자 (005930)</h2>
     <p>기준일: {today}</p>
     <h3 style="color:{color};">현재가: {price:,}원 ({emoji} {change:.2f}%)</h3>
-    <p>거래량: {int(latest['Volume']):,}주</p>
     """
 
 except Exception as e:
@@ -66,4 +71,4 @@ html_content = f"""
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(html_content)
 
-print("블로그 업데이트 완료!")
+print(f"블로그 업데이트 완료! 삼성전자 현재가: {price:,}원")
