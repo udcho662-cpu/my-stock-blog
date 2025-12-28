@@ -15,6 +15,9 @@ jobs:
     steps:
     - name: 내 코드 가져오기
       uses: actions/checkout@v3
+       with:
+        ref: 'main'  # 👈 [중요] "무조건 최신 main 버전을 가져와!" 라는 뜻
+        fetch-depth: 0 # 모든 기록을 다 새로고침해서 가져오라는 뜻
 
     - name: 파이썬 설정하기
       uses: actions/setup-python@v4
