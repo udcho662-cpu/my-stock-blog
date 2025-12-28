@@ -2,11 +2,11 @@ name: 매일 주식 블로그 쓰기
 
 on:
   schedule:
-    - cron: '0 23 * * *' # 매일 아침 8시 실행
+    - cron: '0 23 * * *'
   workflow_dispatch: # 수동 실행 버튼
 
 permissions:
-  contents: write # ⭐️ [중요] 로봇에게 '글쓰기' 권한을 주는 마법의 코드!
+  contents: write # ⭐️ 쓰기 권한 필수!
 
 jobs:
   build:
@@ -21,16 +21,20 @@ jobs:
       with:
         python-version: '3.9'
 
-    - name: 필요한 도구 설치
-      run: pip install finance-datareader
+    - name: 필요한 라이브러리 설치
+      run: |
+        pip install finance-datareader beautifulsoup4 lxml
 
-    - name: 로봇 실행! (글 쓰기)
-      run: python main.py
+    - name: 로봇 실행! (에러나면 멈춰!)
+      run: |
+        python main.py
+        cat index.html # ⭐️ 실행 직후, 파일 내용이 진짜로 바뀌었는지 화면에 출력해보기
 
     - name: 결과물 저장하고 퇴근하기
       run: |
         git config --global user.name 'StockBot'
         git config --global user.email 'bot@noreply.github.com'
         git add index.html
-        git commit -m "오늘의 주식 데이터 업데이트" || echo "변경사항이 없어서 넘어갑니다."
+        git commit -m "오늘의 주식 데이터 업데이트"
         git push
+
