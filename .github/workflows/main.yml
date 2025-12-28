@@ -1,0 +1,30 @@
+name: 매일 주식 블로그 쓰기
+
+on:
+  schedule:
+    - cron: '0 23 * * *' # 한국 시간 아침 8시마다 실행
+  workflow_dispatch: # 수동 실행 버튼 추가
+
+permissions:
+  contents: write # ⭐️ 로봇이 글을 쓰고 저장할 수 있는 권한 부여!
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 내 코드 가져오기
+      uses: actions/checkout@v3
+
+    - name: 파이썬 설정하기
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: 필요한 도구 설치
+      run: pip install openai finance-datareader matplotlib
+
+    - name: 로봇 실행! (main.py 실행)
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} # 나중에 설정할 비밀키
+      run: python main.py
